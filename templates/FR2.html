@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>FR2 Resume Template</title>
+<style>
+@page{size:A4;margin:10mm}
+body{font-family:Calibri,Arial,sans-serif;margin:0;color:#222;font-size:10.5pt}
+.wrapper{display:flex;min-height:100vh}
+.sidebar{width:30%;background:#143d6b;color:#fff;padding:18px;box-sizing:border-box}
+.main{width:70%;padding:20px;box-sizing:border-box}
+h1{margin:0;font-size:24px}
+h2{font-size:12px;text-transform:uppercase;color:#143d6b;border-bottom:2px solid #f5b400;padding-bottom:4px}
+.sidebar h3{font-size:12px;border-bottom:1px solid rgba(255,255,255,.4);padding-bottom:4px;margin-top:18px}
+.small{font-size:9.5pt}
+.item{margin-bottom:10px}
+ul{margin:4px 0 4px 18px;padding:0}
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+<div class="sidebar">
+<h1>{{FULL_NAME}}</h1>
+
+<p class="small">{{EMAIL}}</p>
+<p class="small">{{MOBILE}}</p>
+<p class="small">{{LINKEDIN}}</p>
+<p class="small">{{ADDRESS}}</p>
+
+<h3>Skills</h3>
+{{SKILLS}}
+
+<h3>Certifications</h3>
+<ul>
+{{CERTIFICATION_BLOCK}}
+</ul>
+
+<h3>Achievements</h3>
+<ul>
+{{ACHIEVEMENT_BLOCK}}
+</ul>
+
+</div>
+
+<div class="main">
+
+<h2>Career Objective</h2>
+<p>{{CAREER_OBJECTIVE}}</p>
+
+<h2>Education</h2>
+{{EDUCATION_BLOCK}}
+
+<h2>Experience</h2>
+{{EXPERIENCE_BLOCK}}
+
+<h2>Internships</h2>
+{{INTERNSHIP_BLOCK}}
+
+<h2>Projects</h2>
+{{PROJECT_BLOCK}}
+
+</div>
+
+</div>
+
+</body>
+</html>

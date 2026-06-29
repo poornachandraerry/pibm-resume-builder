@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<base target="_top">
+<title>Internships</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+.box{border:1px solid #ddd;border-radius:10px;padding:20px;margin-bottom:16px;background:#fff}
+</style>
+</head>
+<body>
+<div class="container-fluid py-3">
+<div id="alerts"></div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+<h4>Internships</h4>
+<button class="btn btn-success" onclick="addInternship()">+ Add Internship</button>
+</div>
+
+<div id="internshipContainer"></div>
+
+<div class="text-end mt-3">
+<button class="btn btn-primary" onclick="saveInternships()">Save Internships</button>
+</div>
+</div>
+
+<template id="internTemplate">
+<div class="box intern-item">
+<div class="row g-3">
+<div class="col-md-6">
+<label class="form-label">Organization</label>
+<input class="form-control organization">
+</div>
+<div class="col-md-6">
+<label class="form-label">Role / Designation</label>
+<input class="form-control role">
+</div>
+<div class="col-md-3">
+<label class="form-label">Start Date</label>
+<input type="month" class="form-control start">
+</div>
+<div class="col-md-3">
+<label class="form-label">End Date</label>
+<input type="month" class="form-control end">
+</div>
+<div class="col-md-6">
+<label class="form-label">Mentor / Supervisor</label>
+<input class="form-control mentor">
+</div>
+<div class="col-12">
+<label class="form-label">Project Title</label>
+<input class="form-control project">
+</div>
+<div class="col-12">
+<label class="form-label">Description</label>
+<textarea rows="4" class="form-control description" placeholder="Describe responsibilities, learning and outcomes."></textarea>
+</div>
+<div class="col-12 text-end">
+<button type="button" class="btn btn-outline-danger" onclick="this.closest('.intern-item').remove()">Remove</button>
+</div>
+</div>
+</div>
+</template>
+
+<script>
+document.addEventListener("DOMContentLoaded",loadInternships);
+
+function addInternship(d={}){
+ const n=document.getElementById("internTemplate").content.cloneNode(true);
+ const i=n.querySelector(".intern-item");
+ i.querySelector(".organization").value=d.Organization||"";
+ i.querySelector(".role").value=d.Role||"";
+ i.querySelector(".start").value=d.Start_Date||"";
+ i.querySelector(".end").value=d.End_Date||"";
+ i.querySelector(".mentor").value=d.Mentor||"";
+ i.querySelector(".project").value=d.Project_Title||"";
+ i.querySelector(".description").value=d.Description||"";
+ internshipContainer.appendChild(n);
+}
+
+function loadInternships(){
+ google.script.run
+ .withSuccessHandler(function(list){
+   internshipContainer.innerHTML="";
+   if(Array.isArray(list)&&list.length){list.forEach(addInternship);}else{addInternship();}
+ })
+ .withFailureHandler(e=>show(e.message,"danger"))
+ .getInternshipList();
+}
+
+function saveInternships(){
+ const data=[];
+ for(const row of document.querySelectorAll(".intern-item")){
+   const o={
+     Organization:row.querySelector(".organization").value.trim(),
+     Role:row.querySelector(".role").value.trim(),
+     Start_Date:row.querySelector(".start").value,
+     End_Date:row.querySelector(".end").value,
+     Mentor:row.querySelector(".mentor").value.trim(),
+     Project_Title:row.querySelector(".project").value.trim(),
+     Description:row.querySelector(".description").value.trim()
+   };
+   if(!o.Organization){show("Organization is required.","danger");return;}
+   if(!o.Role){show("Role / Designation is required.","danger");return;}
+   data.push(o);
+ }
+ google.script.run
+ .withSuccessHandler(()=>show("Internship details saved successfully.","success"))
+ .withFailureHandler(e=>show(e.message,"danger"))
+ .saveInternshipList(data);
+}
+
+function show(msg,type){
+ alerts.innerHTML=`<div class="alert alert-${type} alert-dismissible fade show">${msg}<button class="btn-close" data-bs-dismiss="alert"></button></div>`;
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

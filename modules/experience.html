@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base target="_top">
+<title>Experience</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+.exp-card{border:1px solid #dee2e6;border-radius:10px;padding:20px;margin-bottom:15px;background:#fff}
+</style>
+</head>
+<body>
+<div class="container-fluid py-3">
+<div id="alertBox"></div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+<h4>Work Experience</h4>
+<button class="btn btn-success" onclick="addExperience()">+ Add Experience</button>
+</div>
+
+<div id="experienceContainer"></div>
+
+<div class="text-end mt-3">
+<button class="btn btn-primary" onclick="saveExperience()">Save Experience</button>
+</div>
+</div>
+
+<template id="experienceTemplate">
+<div class="exp-card exp-item">
+<div class="row g-3">
+<div class="col-md-6">
+<label class="form-label">Company</label>
+<input class="form-control company">
+</div>
+
+<div class="col-md-6">
+<label class="form-label">Designation</label>
+<input class="form-control designation">
+</div>
+
+<div class="col-md-4">
+<label class="form-label">Location</label>
+<input class="form-control location">
+</div>
+
+<div class="col-md-3">
+<label class="form-label">Start Date</label>
+<input type="month" class="form-control startDate">
+</div>
+
+<div class="col-md-3">
+<label class="form-label">End Date</label>
+<input type="month" class="form-control endDate">
+</div>
+
+<div class="col-md-2 d-flex align-items-end">
+<div class="form-check">
+<input class="form-check-input currentCompany" type="checkbox">
+<label class="form-check-label">Current</label>
+</div>
+</div>
+
+<div class="col-12">
+<label class="form-label">Job Description</label>
+<textarea rows="4" class="form-control responsibilities"
+placeholder="Enter key responsibilities, achievements and impact."></textarea>
+</div>
+
+<div class="col-12 text-end">
+<button type="button" class="btn btn-outline-danger"
+onclick="this.closest('.exp-item').remove()">
+Remove
+</button>
+</div>
+</div>
+</div>
+</template>
+
+<script>
+document.addEventListener("DOMContentLoaded",loadExperience);
+
+function addExperience(data={}){
+ const node=document.getElementById("experienceTemplate").content.cloneNode(true);
+ const item=node.querySelector(".exp-item");
+
+ item.querySelector(".company").value=data.Company||"";
+ item.querySelector(".designation").value=data.Designation||"";
+ item.querySelector(".location").value=data.Location||"";
+ item.querySelector(".startDate").value=data.Start_Date||"";
+ item.querySelector(".endDate").value=data.End_Date||"";
+ item.querySelector(".currentCompany").checked=(data.Current==="Yes");
+ item.querySelector(".responsibilities").value=data.Responsibilities||"";
+
+ item.querySelector(".currentCompany").addEventListener("change",function(){
+   item.querySelector(".endDate").disabled=this.checked;
+   if(this.checked){ item.querySelector(".endDate").value=""; }
+ });
+
+ if(item.querySelector(".currentCompany").checked){
+   item.querySelector(".endDate").disabled=true;
+ }
+
+ document.getElementById("experienceContainer").appendChild(node);
+}
+
+function loadExperience(){
+ google.script.run
+ .withSuccessHandler(function(list){
+   experienceContainer.innerHTML="";
+   if(Array.isArray(list)&&list.length){
+      list.forEach(addExperience);
+   }else{
+      addExperience();
+   }
+ })
+ .withFailureHandler(function(err){
+   showAlert(err.message,"danger");
+ })
+ .getExperienceList();
+}
+
+function saveExperience(){
+
+ const rows=[...document.querySelectorAll(".exp-item")];
+ const payload=[];
+
+ for(const row of rows){
+
+   const obj={
+     Company:row.querySelector(".company").value.trim(),
+     Designation:row.querySelector(".designation").value.trim(),
+     Location:row.querySelector(".location").value.trim(),
+     Start_Date:row.querySelector(".startDate").value,
+     End_Date:row.querySelector(".endDate").value,
+     Current:row.querySelector(".currentCompany").checked?"Yes":"No",
+     Responsibilities:row.querySelector(".responsibilities").value.trim()
+   };
+
+   if(obj.Company===""){
+      showAlert("Company name is required.","danger");
+      return;
+   }
+
+   if(obj.Designation===""){
+      showAlert("Designation is required.","danger");
+      return;
+   }
+
+   payload.push(obj);
+ }
+
+ google.script.run
+ .withSuccessHandler(function(){
+    showAlert("Experience details saved successfully.","success");
+ })
+ .withFailureHandler(function(err){
+    showAlert(err.message,"danger");
+ })
+ .saveExperienceList(payload);
+
+}
+
+function showAlert(msg,type){
+ document.getElementById("alertBox").innerHTML=
+ `<div class="alert alert-${type} alert-dismissible fade show">
+ ${msg}
+ <button class="btn-close" data-bs-dismiss="alert"></button>
+ </div>`;
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

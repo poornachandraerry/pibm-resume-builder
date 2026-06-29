@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ER2 Resume Template</title>
+<style>
+@page{size:A4;margin:12mm}
+body{font-family:Calibri,Arial,sans-serif;font-size:10.5pt;color:#222;margin:0}
+.banner{background:#263238;color:#fff;padding:18px}
+.banner h1{margin:0;font-size:26px}
+.banner p{margin:6px 0 0;font-size:10pt}
+.container{padding:18px}
+.section{margin-top:16px}
+.section h2{font-size:12pt;color:#263238;border-left:5px solid #ffb300;padding-left:8px;margin-bottom:8px;text-transform:uppercase}
+.card{margin-bottom:10px}
+.role{font-weight:bold}
+.company{color:#666}
+ul{margin:4px 0 4px 18px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+</style>
+</head>
+<body>
+
+<div class="banner">
+  <h1>{{FULL_NAME}}</h1>
+  <p>{{EMAIL}} | {{MOBILE}} | {{LINKEDIN}}</p>
+</div>
+
+<div class="container">
+
+<div class="section">
+<h2>Executive Profile</h2>
+<p>{{CAREER_OBJECTIVE}}</p>
+</div>
+
+<div class="section">
+<h2>Professional Experience</h2>
+{{EXPERIENCE_BLOCK}}
+</div>
+
+<div class="grid">
+
+<div>
+<div class="section">
+<h2>Education</h2>
+{{EDUCATION_BLOCK}}
+</div>
+
+<div class="section">
+<h2>Certifications</h2>
+<ul>
+{{CERTIFICATION_BLOCK}}
+</ul>
+</div>
+</div>
+
+<div>
+<div class="section">
+<h2>Projects</h2>
+{{PROJECT_BLOCK}}
+</div>
+
+<div class="section">
+<h2>Core Skills</h2>
+{{SKILLS}}
+</div>
+
+<div class="section">
+<h2>Achievements</h2>
+<ul>
+{{ACHIEVEMENT_BLOCK}}
+</ul>
+</div>
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>

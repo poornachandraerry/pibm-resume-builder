@@ -1,0 +1,311 @@
+<script>
+/* ==========================================================
+   PIBM Resume Builder v1.0
+   Frontend Application Engine
+   ========================================================== */
+
+const PIBM = {
+
+    /* ======================================================
+       Application State
+    ====================================================== */
+
+    state: {
+
+        currentModule: "dashboard",
+
+        studentId: "",
+
+        resumeType: "",
+
+        profile: {}
+
+    },
+
+    /* ======================================================
+       Initialize Application
+    ====================================================== */
+
+    init() {
+
+        console.log("PIBM Resume Builder Started");
+
+        this.bindSidebar();
+
+        this.loadModule("dashboard");
+
+    },
+
+    /* ======================================================
+       Sidebar Navigation
+    ====================================================== */
+
+    bindSidebar() {
+
+        document.querySelectorAll("#sidebar li").forEach(menu => {
+
+            menu.addEventListener("click", () => {
+
+                document.querySelectorAll("#sidebar li")
+                    .forEach(item => item.classList.remove("active"));
+
+                menu.classList.add("active");
+
+                this.loadModule(menu.dataset.page);
+
+            });
+
+        });
+
+    },
+
+    /* ======================================================
+       Module Loader
+    ====================================================== */
+
+    loadModule(moduleName) {
+
+        this.state.currentModule = moduleName;
+
+        this.UI.showLoader();
+
+        google.script.run
+
+            .withSuccessHandler(html => {
+
+                document.getElementById("content").innerHTML = html;
+
+                this.UI.hideLoader();
+
+                switch(moduleName){
+
+                    case "personal":
+
+                        this.Personal.init();
+
+                        break;
+
+                }
+
+            })
+
+            .withFailureHandler(error => {
+
+                this.UI.hideLoader();
+
+                this.UI.toast(error.message);
+
+            })
+
+            .getModule(moduleName);
+
+    },
+
+    /* ======================================================
+       Generic Apps Script Call
+    ====================================================== */
+
+    call(serverFunction, successCallback, ...args){
+
+        this.UI.showLoader();
+
+        let runner = google.script.run
+
+            .withSuccessHandler(result=>{
+
+                this.UI.hideLoader();
+
+                if(successCallback){
+
+                    successCallback(result);
+
+                }
+
+            })
+
+            .withFailureHandler(error=>{
+
+                this.UI.hideLoader();
+
+                this.UI.toast(error.message);
+
+            });
+
+        runner[serverFunction](...args);
+
+    },
+
+    /* ======================================================
+       Personal Module
+    ====================================================== */
+
+    Personal : {
+
+        init(){
+
+            console.log("Personal Module Loaded");
+
+        },
+
+        resetForm(){
+
+            document.querySelectorAll(
+                "#content input,#content textarea,#content select"
+            ).forEach(control=>{
+
+                if(control.readOnly) return;
+
+                if(control.tagName==="SELECT"){
+
+                    control.selectedIndex=0;
+
+                }
+
+                else{
+
+                    control.value="";
+
+                }
+
+            });
+
+            PIBM.UI.toast("Form Reset");
+
+        },
+
+        getFormData(){
+
+            return{
+
+                Student_ID : document.getElementById("Student_ID")?.value || "",
+
+                Full_Name : document.getElementById("Full_Name")?.value || "",
+
+                Email : document.getElementById("Email")?.value || "",
+
+                Mobile : document.getElementById("Mobile")?.value || "",
+
+                Alternate_Mobile : document.getElementById("Alternate_Mobile")?.value || "",
+
+                Date_of_Birth : document.getElementById("Date_of_Birth")?.value || "",
+
+                Gender : document.getElementById("Gender")?.value || "",
+
+                LinkedIn_URL : document.getElementById("LinkedIn_URL")?.value || "",
+
+                GitHub_URL : document.getElementById("GitHub_URL")?.value || "",
+
+                Portfolio_URL : document.getElementById("Portfolio_URL")?.value || "",
+
+                Address : document.getElementById("Address")?.value || "",
+
+                City : document.getElementById("City")?.value || "",
+
+                State : document.getElementById("State")?.value || "",
+
+                Pincode : document.getElementById("Pincode")?.value || "",
+
+                Resume_Type : document.getElementById("Resume_Type")?.value || ""
+
+            };
+
+        },
+
+        validate(data){
+
+            if(data.Full_Name.trim()===""){
+
+                PIBM.UI.toast("Full Name is required.");
+
+                return false;
+
+            }
+
+            if(data.Email.trim()===""){
+
+                PIBM.UI.toast("Email is required.");
+
+                return false;
+
+            }
+
+            if(data.Mobile.trim()===""){
+
+                PIBM.UI.toast("Mobile Number is required.");
+
+                return false;
+
+            }
+
+            return true;
+
+        },
+
+        save(){
+
+            const data=this.getFormData();
+
+            if(!this.validate(data))
+                return;
+
+            console.log(data);
+
+            PIBM.UI.toast("Backend integration will be connected next.");
+
+        }
+
+    },
+
+    /* ======================================================
+       UI Helpers
+    ====================================================== */
+
+    UI : {
+
+        showLoader(){
+
+            document
+                .getElementById("loader")
+                .classList.remove("hidden");
+
+        },
+
+        hideLoader(){
+
+            document
+                .getElementById("loader")
+                .classList.add("hidden");
+
+        },
+
+        toast(message){
+
+            const toast=document.getElementById("toast");
+
+            toast.innerHTML=message;
+
+            toast.style.display="block";
+
+            setTimeout(()=>{
+
+                toast.style.display="none";
+
+            },3000);
+
+        }
+
+    }
+
+};
+
+/* ==========================================================
+   Application Start
+   ========================================================== */
+
+window.onload=function(){
+
+    PIBM.init();
+
+};
+
+</script>

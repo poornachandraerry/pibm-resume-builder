@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<base target="_top">
+<title>Achievements</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+.achievement-card{border:1px solid #dee2e6;border-radius:10px;padding:20px;margin-bottom:16px;background:#fff}
+</style>
+</head>
+<body>
+<div class="container-fluid py-3">
+
+<div id="alertContainer"></div>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+<h4>Achievements & Awards</h4>
+<button class="btn btn-success" type="button" onclick="addAchievement()">+ Add Achievement</button>
+</div>
+
+<div id="achievementContainer"></div>
+
+<div class="text-end mt-3">
+<button class="btn btn-primary" type="button" onclick="saveAchievements()">Save Achievements</button>
+</div>
+
+</div>
+
+<template id="achievementTemplate">
+<div class="achievement-card achievement-item">
+<div class="row g-3">
+
+<div class="col-md-6">
+<label class="form-label">Achievement Title</label>
+<input class="form-control title">
+</div>
+
+<div class="col-md-6">
+<label class="form-label">Category</label>
+<select class="form-select category">
+<option value="">Select</option>
+<option>Academic</option>
+<option>Professional</option>
+<option>Competition</option>
+<option>Leadership</option>
+<option>Sports</option>
+<option>Certification</option>
+<option>Other</option>
+</select>
+</div>
+
+<div class="col-md-6">
+<label class="form-label">Organization</label>
+<input class="form-control organization">
+</div>
+
+<div class="col-md-3">
+<label class="form-label">Achievement Date</label>
+<input type="month" class="form-control date">
+</div>
+
+<div class="col-md-3">
+<label class="form-label">Rank / Position</label>
+<input class="form-control rank">
+</div>
+
+<div class="col-12">
+<label class="form-label">Description</label>
+<textarea rows="4" class="form-control description" placeholder="Briefly describe the achievement and its impact."></textarea>
+</div>
+
+<div class="col-12 text-end">
+<button type="button" class="btn btn-outline-danger" onclick="this.closest('.achievement-item').remove()">Remove</button>
+</div>
+
+</div>
+</div>
+</template>
+
+<script>
+document.addEventListener("DOMContentLoaded", loadAchievements);
+
+function addAchievement(data={}){
+ const node=document.getElementById("achievementTemplate").content.cloneNode(true);
+ const item=node.querySelector(".achievement-item");
+
+ item.querySelector(".title").value=data.Title||"";
+ item.querySelector(".category").value=data.Category||"";
+ item.querySelector(".organization").value=data.Organization||"";
+ item.querySelector(".date").value=data.Date||"";
+ item.querySelector(".rank").value=data.Rank||"";
+ item.querySelector(".description").value=data.Description||"";
+
+ document.getElementById("achievementContainer").appendChild(node);
+}
+
+function loadAchievements(){
+ google.script.run
+ .withSuccessHandler(function(list){
+   achievementContainer.innerHTML="";
+   if(Array.isArray(list) && list.length){
+      list.forEach(addAchievement);
+   }else{
+      addAchievement();
+   }
+ })
+ .withFailureHandler(function(err){
+    showAlert(err.message,"danger");
+ })
+ .getAchievementList();
+}
+
+function saveAchievements(){
+ const rows=[...document.querySelectorAll(".achievement-item")];
+ const payload=[];
+
+ for(const row of rows){
+   const obj={
+     Title:row.querySelector(".title").value.trim(),
+     Category:row.querySelector(".category").value,
+     Organization:row.querySelector(".organization").value.trim(),
+     Date:row.querySelector(".date").value,
+     Rank:row.querySelector(".rank").value.trim(),
+     Description:row.querySelector(".description").value.trim()
+   };
+
+   if(!obj.Title){
+      showAlert("Achievement Title is required.","danger");
+      return;
+   }
+
+   payload.push(obj);
+ }
+
+ google.script.run
+ .withSuccessHandler(function(){
+    showAlert("Achievements saved successfully.","success");
+ })
+ .withFailureHandler(function(err){
+    showAlert(err.message,"danger");
+ })
+ .saveAchievementList(payload);
+}
+
+function showAlert(msg,type){
+ document.getElementById("alertContainer").innerHTML=
+ `<div class="alert alert-${type} alert-dismissible fade show">
+ ${msg}
+ <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+ </div>`;
+}
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

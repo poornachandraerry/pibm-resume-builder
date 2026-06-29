@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>ER3 Resume Template</title>
+<style>
+@page{size:A4;margin:12mm}
+body{font-family:Arial,sans-serif;font-size:10.5pt;color:#222;line-height:1.45}
+header{margin-bottom:18px;border-bottom:2px solid #444;padding-bottom:8px}
+h1{margin:0;font-size:24px}
+.contact{color:#666;margin-top:4px}
+section{margin-top:16px}
+h2{font-size:12pt;margin:0 0 8px;color:#111;text-transform:uppercase;border-bottom:1px solid #ddd;padding-bottom:4px}
+.entry{margin-bottom:12px}
+.entry-title{font-weight:bold}
+.muted{color:#666}
+ul{margin:4px 0 4px 18px}
+.skills{display:flex;flex-wrap:wrap;gap:6px}
+.skill{border:1px solid #999;padding:3px 8px;border-radius:12px;font-size:9.5pt}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>{{FULL_NAME}}</h1>
+  <div class="contact">{{EMAIL}} | {{MOBILE}} | {{LINKEDIN}}</div>
+</header>
+
+<section>
+<h2>Professional Summary</h2>
+<p>{{CAREER_OBJECTIVE}}</p>
+</section>
+
+<section>
+<h2>Professional Experience</h2>
+{{EXPERIENCE_BLOCK}}
+</section>
+
+<section>
+<h2>Projects</h2>
+{{PROJECT_BLOCK}}
+</section>
+
+<section>
+<h2>Education</h2>
+{{EDUCATION_BLOCK}}
+</section>
+
+<section>
+<h2>Core Skills</h2>
+<div class="skills">
+{{SKILLS}}
+</div>
+</section>
+
+<section>
+<h2>Certifications</h2>
+<ul>
+{{CERTIFICATION_BLOCK}}
+</ul>
+</section>
+
+<section>
+<h2>Achievements</h2>
+<ul>
+{{ACHIEVEMENT_BLOCK}}
+</ul>
+</section>
+
+</body>
+</html>
