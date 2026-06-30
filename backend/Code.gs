@@ -15,40 +15,65 @@
  */
 function doGet(e) {
 
-  const page = (e && e.parameter.page)
-    ? e.parameter.page
-    : "dashboard";
-
-  const template = HtmlService.createTemplateFromFile("Index");
-
-  template.PAGE = page;
+  const template =
+    HtmlService.createTemplateFromFile("index");
 
   return template
     .evaluate()
     .setTitle("PIBM Resume Builder")
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+    .setXFrameOptionsMode(
+      HtmlService.XFrameOptionsMode.ALLOWALL
+    );
 
 }
 
 
 /**
  * ============================================================
- * Include HTML Partials
+ * Include HTML File
  * ============================================================
  */
 function include(filename) {
 
+  return HtmlService
+    .createHtmlOutputFromFile(filename)
+    .getContent();
+
+}
+
+
+/**
+ * ============================================================
+ * Load Module HTML
+ * ============================================================
+ */
+function getModule(moduleName) {
+
   try {
 
     return HtmlService
-      .createHtmlOutputFromFile(filename)
+      .createHtmlOutputFromFile(
+        "modules/" + moduleName
+      )
       .getContent();
 
-  } catch (e) {
+  }
 
-    throw new Error(
-      "Unable to include HTML file: " + filename
-    );
+  catch (e) {
+
+    return `
+      <div class="container py-5">
+
+        <div class="alert alert-danger">
+
+          <h5>Module Not Found</h5>
+
+          <p>${moduleName}</p>
+
+        </div>
+
+      </div>
+    `;
 
   }
 
@@ -57,11 +82,9 @@ function include(filename) {
 
 /**
  * ============================================================
- * Get Logged In User
- * (Temporary)
+ * Current Logged In User
+ * Temporary
  * ============================================================
- *
- * Later this will come from Login Session.
  */
 function getCurrentUser() {
 
@@ -80,44 +103,19 @@ function getCurrentUser() {
 
 /**
  * ============================================================
- * Dashboard Data
+ * Dashboard Module
  * ============================================================
  */
-function getDashboardData() {
+function loadDashboard() {
 
   const user = getCurrentUser();
 
-  return {
+  return success(
 
-    user: user,
+    "Dashboard Loaded",
 
-    student: getStudentProfile(user.studentId),
+    getDashboardData(user.studentId)
 
-    education: getEducation(user.studentId).length,
-
-    experience: getExperience(user.studentId).length,
-
-    internships: getInternships(user.studentId).length,
-
-    projects: getProjects(user.studentId).length,
-
-    skills: getSkills(user.studentId).length,
-
-    certifications: getCertifications(user.studentId).length,
-
-    achievements: getAchievements(user.studentId).length
-
-  };
-
-}
-
-/**
- * Load Dashboard Page
- */
-function getDashboardPage(){
-
-  return HtmlService
-    .createHtmlOutputFromFile("Dashboard")
-    .getContent();
+  );
 
 }
