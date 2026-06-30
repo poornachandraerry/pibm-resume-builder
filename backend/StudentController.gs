@@ -185,10 +185,14 @@ function saveValidatedStudent(student) {
 
 /**
  * ============================================================
- * Dashboard Controller
+ * Dashboard Controller (Admin / explicit-studentId variant)
+ * ------------------------------------------------------------
+ * Renamed from loadDashboard() to avoid colliding with the
+ * canonical loadDashboard() in DashboardService.gs, which Apps
+ * Script would otherwise silently overwrite.
  * ============================================================
  */
-function loadDashboard(studentId) {
+function loadDashboardForStudent(studentId) {
 
   try {
 

@@ -228,7 +228,7 @@ function buildEducation(studentId) {
  */
 function buildExperience(studentId) {
 
-  const experience = getExperience(studentId);
+  const experience = getExperiences(studentId);
 
   if (!experience || experience.length === 0) {
 

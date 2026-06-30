@@ -8,7 +8,7 @@
 /**
  * Get Education Records
  */
-function getEducation(studentId) {
+function getEducations(studentId) {
 
   const sheet = getSheet(CONFIG.SHEETS.EDUCATION);
 

@@ -4,15 +4,34 @@
  * DashboardService.gs
  * ----------------------------------------------------------
  * Dashboard Service
- * Business Logic Layer
  * ==========================================================
  */
 
+/**
+ * Load Dashboard (Controller Entry)
+ */
+function loadDashboard() {
+
+  const user = getCurrentUser();
+
+  try {
+
+    return success(
+      "Dashboard loaded successfully.",
+      getDashboardData(user.studentId)
+    );
+
+  } catch (e) {
+
+    return failure(e.message);
+
+  }
+
+}
+
 
 /**
- * ==========================================================
  * Get Dashboard Data
- * ==========================================================
  */
 function getDashboardData(studentId) {
 
@@ -39,85 +58,131 @@ function getDashboardData(studentId) {
 }
 
 
-
 /**
- * ==========================================================
- * Calculate Dashboard Completion Status
- * ==========================================================
+ * Calculate Completion Status
  */
 function calculateCompletionStatus(studentId) {
 
-  const profile = getStudentProfile(studentId);
-
-  if (!profile) {
-    throw new Error("Student profile not found.");
-  }
-
   const completion = getBlankCompletionStatus();
 
-  /**
-   * Personal
-   */
-  completion.personal =
-    isPersonalProfileComplete(profile);
+  const profile = getStudentProfile(studentId);
 
+  completion.personal = isPersonalProfileComplete(profile);
+  completion.education = safeLength(getEducations, studentId) > 0;
+  completion.experience = safeLength(getExperiences, studentId) > 0;
+  completion.internship = safeLength(getInternships, studentId) > 0;
+  completion.projects = safeLength(getProjects, studentId) > 0;
+  completion.skills = safeLength(getSkills, studentId) >= 5;
+  completion.certifications = safeLength(getCertifications, studentId) > 0;
+  completion.achievements = safeLength(getAchievements, studentId) > 0;
 
-  /**
-   * Education
-   */
-  completion.education =
-    safeLength(getEducations, studentId) > 0;
-
-
-  /**
-   * Experience
-   * (Freshers can be handled later)
-   */
-  completion.experience =
-    safeLength(getExperiences, studentId) > 0;
-
-
-  /**
-   * Internship
-   */
-  completion.internship =
-    safeLength(getInternships, studentId) > 0;
-
-
-  /**
-   * Projects
-   */
-  completion.projects =
-    safeLength(getProjects, studentId) > 0;
-
-
-  /**
-   * Skills
-   */
-  completion.skills =
-    safeLength(getSkills, studentId) >= 5;
-
-
-  /**
-   * Certifications
-   */
-  completion.certifications =
-    safeLength(getCertifications, studentId) > 0;
-
-
-  /**
-   * Achievements
-   */
-  completion.achievements =
-    safeLength(getAchievements, studentId) > 0;
-
-
-  /**
-   * Overall Completion
-   */
-  completion.overall =
-    calculateOverallCompletion(completion);
+  completion.overall = calculateOverallCompletion(completion);
 
   return completion;
+
+}
+
+
+/**
+ * Build Dashboard Student
+ */
+function buildDashboardStudent(profile) {
+
+  return {
+
+    studentId: profile.Student_ID || "",
+
+    name: profile.Full_Name || "",
+
+    email: profile.Email || "",
+
+    mobile: profile.Mobile || "",
+
+    batch: profile.Batch || "",
+
+    program: profile.Program || "",
+
+    specialization: profile.Specialization || "",
+
+    photo: profile.Photo_File_ID || ""
+
+  };
+
+}
+
+
+/**
+ * Personal Profile Check
+ */
+function isPersonalProfileComplete(profile) {
+
+  if (!profile) return false;
+
+  return (
+    !isEmpty(profile.Full_Name) &&
+    !isEmpty(profile.Email) &&
+    !isEmpty(profile.Mobile)
+  );
+
+}
+
+
+/**
+ * Safe Length
+ */
+function safeLength(serviceFunction, studentId) {
+
+  try {
+
+    if (typeof serviceFunction !== "function") {
+      return 0;
+    }
+
+    const data = serviceFunction(studentId);
+
+    return Array.isArray(data) ? data.length : 0;
+
+  } catch (e) {
+
+    return 0;
+
+  }
+
+}
+
+
+/**
+ * Overall Completion
+ */
+function calculateOverallCompletion(c) {
+
+  let completed = 0;
+
+  [
+    c.personal,
+    c.education,
+    c.experience,
+    c.internship,
+    c.projects,
+    c.skills,
+    c.certifications,
+    c.achievements
+  ].forEach(function(v) {
+
+    if (v) completed++;
+
+  });
+
+  return Math.round((completed / 8) * 100);
+
+}
+
+
+/**
+ * Recent Activity
+ */
+function buildRecentActivity(studentId) {
+
+  return [];
 
 }

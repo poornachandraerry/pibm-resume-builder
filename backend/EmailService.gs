@@ -7,26 +7,28 @@
 
 /**
  * Sends the generated resume to the student's email.
- * Expects DriveService/ResumeService to be available.
  */
-function emailResume(templateName, recipientEmail) {
+function emailResume(studentId, templateName, recipientEmail) {
 
-  const data = getResumeData();
+  if (!studentId) {
+    throw new Error("Student ID is required.");
+  }
+
+  const data = getResumeData(studentId);
   const personal = data.personal || {};
 
-  const saveResult = saveResumeToDrive(templateName);
+  const saveResult = generateResume(studentId, templateName);
 
   const file = DriveApp.getFileById(saveResult.fileId);
   const pdfBlob = file.getBlob();
 
-  const to = recipientEmail || personal.Email;
+  const to = recipientEmail || personal.email;
 
   if (!to) {
     throw new Error("Recipient email address not found.");
   }
 
-  const studentName =
-    ((personal.First_Name || "") + " " + (personal.Last_Name || "")).trim();
+  const studentName = personal.name || "Student";
 
   const subject = "Your PIBM Resume - " + templateName;
 
@@ -104,5 +106,5 @@ function buildResumeEmailTemplate(studentName, templateName) {
  * Test helper.
  */
 function testEmailResume() {
-  return emailResume("FR1");
+  return emailResume("STU000001", "FR1");
 }

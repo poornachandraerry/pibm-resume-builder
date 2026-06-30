@@ -8,7 +8,7 @@
 /**
  * Get Experience Records
  */
-function getExperience(studentId) {
+function getExperiences(studentId) {
 
   const sheet = getSheet(CONFIG.SHEETS.EXPERIENCE);
 
@@ -60,7 +60,7 @@ function saveExperience(studentId, experienceList) {
     experience.Updated_On = now();
 
     if (!experience.Experience_ID) {
-      experience.Experience_ID = Utilities.getUuid();
+      experience.Experience_ID = generateId();
     }
 
     return headers.map(function (header) {
@@ -116,7 +116,7 @@ function addExperienceRecord(record) {
   const sheet = getSheet(CONFIG.SHEETS.EXPERIENCE);
 
   if (!record.Experience_ID) {
-    record.Experience_ID = Utilities.getUuid();
+    record.Experience_ID = generateId();
   }
 
   record.Created_On = now();
@@ -130,10 +130,7 @@ function addExperienceRecord(record) {
 
   sheet.appendRow(row);
 
-  return {
-    success: true,
-    message: "Experience added."
-  };
+  return success("Experince Added");
 
 }
 

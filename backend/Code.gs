@@ -104,18 +104,10 @@ function getCurrentUser() {
 /**
  * ============================================================
  * Dashboard Module
+ * ------------------------------------------------------------
+ * NOTE: loadDashboard() itself lives in DashboardService.gs.
+ * Do not redeclare it here - Apps Script silently lets the
+ * last-loaded definition win when a function name is repeated
+ * across files, which previously caused random dashboard bugs.
  * ============================================================
  */
-function loadDashboard() {
-
-  const user = getCurrentUser();
-
-  return success(
-
-    "Dashboard Loaded",
-
-    getDashboardData(user.studentId)
-
-  );
-
-}
