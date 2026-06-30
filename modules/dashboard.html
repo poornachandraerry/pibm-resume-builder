@@ -1,329 +1,253 @@
-<div class="container-fluid py-4">
 
-    <!-- Welcome -->
-    <div class="row mb-4">
+<div class="container-fluid">
 
-        <div class="col-lg-8">
+  <div class="row mb-4">
 
-            <div class="card shadow-sm border-0">
+    <div class="col-lg-8">
 
-                <div class="card-body">
+      <div class="card">
+        <div class="card-body">
 
-                    <h3 class="mb-1">
-                        Welcome,
-                        <span id="studentName">Student</span>
-                    </h3>
+          <h3 class="mb-1">
+            Welcome,
+            <span id="studentName">Student</span>
+          </h3>
 
-                    <div class="text-muted mb-3">
+          <div class="text-muted mb-3">
+            <span id="studentId"></span> |
+            <span id="studentProgram"></span> |
+            <span id="studentBatch"></span>
+          </div>
 
-                        <span id="studentId"></span>
+          <label class="mb-2 fw-semibold">
+            Profile Completion
+          </label>
 
-                        |
-
-                        <span id="studentProgram"></span>
-
-                        |
-
-                        <span id="studentBatch"></span>
-
-                    </div>
-
-                    <div class="progress" style="height:12px;">
-
-                        <div
-                            id="completionBar"
-                            class="progress-bar bg-primary"
-                            style="width:0%">
-                        </div>
-
-                    </div>
-
-                    <div class="mt-2">
-
-                        <strong id="completionText">
-                            Profile Completion : 0%
-                        </strong>
-
-                    </div>
-
-                </div>
-
+          <div class="progress">
+            <div id="completionBar"
+                 class="progress-bar"
+                 style="width:0%">
             </div>
+          </div>
+
+          <div class="mt-2">
+            <strong id="completionText">0%</strong>
+          </div>
 
         </div>
-
-        <div class="col-lg-4">
-
-            <div class="card shadow-sm border-0">
-
-                <div class="card-body text-center">
-
-                    <img
-                        id="studentPhoto"
-                        src="https://placehold.co/120x120"
-                        class="rounded-circle mb-3"
-                        style="width:120px;height:120px;object-fit:cover;">
-
-                    <div>
-
-                        <button
-                            class="btn btn-primary w-100"
-                            onclick="openModule('personal')">
-
-                            Edit Profile
-
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
+      </div>
 
     </div>
 
+    <div class="col-lg-4">
 
-    <!-- Status Cards -->
+      <div class="card">
+        <div class="card-body text-center">
 
-    <div class="row g-3">
+          <img id="studentPhoto"
+               src="https://placehold.co/120x120"
+               class="rounded-circle mb-3"
+               style="width:120px;height:120px;object-fit:cover;">
 
-        <div class="col-md-3">
+          <h5 id="studentDisplayName">Student</h5>
 
-            <div class="card dashboard-card" onclick="openModule('personal')">
-
-                <div class="card-body">
-
-                    <h6>👤 Personal</h6>
-
-                    <span id="personalStatus"
-                          class="badge bg-secondary">
-                        Pending
-                    </span>
-
-                </div>
-
-            </div>
+          <button class="btn btn-primary w-100 mt-3"
+                  onclick="openModule('personal')">
+            Complete Profile
+          </button>
 
         </div>
-
-        <div class="col-md-3">
-
-            <div class="card dashboard-card" onclick="openModule('education')">
-
-                <div class="card-body">
-
-                    <h6>🎓 Education</h6>
-
-                    <span id="educationStatus"
-                          class="badge bg-secondary">
-                        Pending
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-3">
-
-            <div class="card dashboard-card" onclick="openModule('experience')">
-
-                <div class="card-body">
-
-                    <h6>💼 Experience</h6>
-
-                    <span id="experienceStatus"
-                          class="badge bg-secondary">
-                        Pending
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-3">
-
-            <div class="card dashboard-card" onclick="openModule('internships')">
-
-                <div class="card-body">
-
-                    <h6>🏢 Internship</h6>
-
-                    <span id="internshipStatus"
-                          class="badge bg-secondary">
-                        Pending
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-3">
-
-            <div class="card dashboard-card" onclick="openModule('projects')">
-
-                <div class="card-body">
-
-                    <h6>📂 Projects</h6>
-
-                    <span id="projectStatus"
-                          class="badge bg-secondary">
-                        Pending
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-3">
-
-            <div class="card dashboard-card" onclick="openModule('skills')">
-
-                <div class="card-body">
-
-                    <h6>🛠 Skills</h6>
-
-                    <span id="skillStatus"
-                          class="badge bg-secondary">
-                        Pending
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-3">
-
-            <div class="card dashboard-card" onclick="openModule('certifications')">
-
-                <div class="card-body">
-
-                    <h6>📜 Certifications</h6>
-
-                    <span id="certificationStatus"
-                          class="badge bg-secondary">
-                        Pending
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-3">
-
-            <div class="card dashboard-card" onclick="openModule('achievements')">
-
-                <div class="card-body">
-
-                    <h6>🏆 Achievements</h6>
-
-                    <span id="achievementStatus"
-                          class="badge bg-secondary">
-                        Pending
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
+      </div>
 
     </div>
 
+  </div>
 
-    <!-- Quick Actions -->
+  <div class="row g-3">
 
-    <div class="row mt-4">
+    <div class="col-md-3">
+      <div class="card dashboard-card" onclick="openModule('personal')">
+        <div class="card-body text-center">
+          <h6>Personal</h6>
+          <span id="personalStatus" class="badge bg-secondary">Pending</span>
+        </div>
+      </div>
+    </div>
 
-        <div class="col-lg-12">
+    <div class="col-md-3">
+      <div class="card dashboard-card" onclick="openModule('education')">
+        <div class="card-body text-center">
+          <h6>Education</h6>
+          <span id="educationStatus" class="badge bg-secondary">Pending</span>
+        </div>
+      </div>
+    </div>
 
-            <div class="card shadow-sm border-0">
+    <div class="col-md-3">
+      <div class="card dashboard-card" onclick="openModule('experience')">
+        <div class="card-body text-center">
+          <h6>Experience</h6>
+          <span id="experienceStatus" class="badge bg-secondary">Pending</span>
+        </div>
+      </div>
+    </div>
 
-                <div class="card-body">
+    <div class="col-md-3">
+      <div class="card dashboard-card" onclick="openModule('projects')">
+        <div class="card-body text-center">
+          <h6>Projects</h6>
+          <span id="projectStatus" class="badge bg-secondary">Pending</span>
+        </div>
+      </div>
+    </div>
 
-                    <h5 class="mb-3">
+    <div class="col-md-3">
+      <div class="card dashboard-card" onclick="openModule('internships')">
+        <div class="card-body text-center">
+          <h6>Internships</h6>
+          <span id="internshipStatus" class="badge bg-secondary">Pending</span>
+        </div>
+      </div>
+    </div>
 
-                        Quick Actions
+    <div class="col-md-3">
+      <div class="card dashboard-card" onclick="openModule('skills')">
+        <div class="card-body text-center">
+          <h6>Skills</h6>
+          <span id="skillStatus" class="badge bg-secondary">Pending</span>
+        </div>
+      </div>
+    </div>
 
-                    </h5>
+    <div class="col-md-3">
+      <div class="card dashboard-card" onclick="openModule('certifications')">
+        <div class="card-body text-center">
+          <h6>Certifications</h6>
+          <span id="certificationStatus" class="badge bg-secondary">Pending</span>
+        </div>
+      </div>
+    </div>
 
-                    <button class="btn btn-primary me-2"
-                            onclick="previewResume()">
+    <div class="col-md-3">
+      <div class="card dashboard-card" onclick="openModule('achievements')">
+        <div class="card-body text-center">
+          <h6>Achievements</h6>
+          <span id="achievementStatus" class="badge bg-secondary">Pending</span>
+        </div>
+      </div>
+    </div>
 
-                        Preview Resume
+  </div>
 
-                    </button>
+  <div class="row mt-4">
 
-                    <button class="btn btn-success me-2"
-                            onclick="generateResume()">
+    <div class="col-lg-8">
 
-                        Generate Resume
+      <div class="card">
+        <div class="card-body">
 
-                    </button>
+          <h5 class="mb-3">Quick Actions</h5>
 
-                    <button class="btn btn-warning"
-                            onclick="downloadResume()">
+          <button class="btn btn-primary me-2"
+                  onclick="previewResume()">
+            Preview Resume
+          </button>
 
-                        Download PDF
+          <button class="btn btn-success me-2"
+                  onclick="generateResume()">
+            Generate Resume
+          </button>
 
-                    </button>
-
-                </div>
-
-            </div>
+          <button class="btn btn-warning"
+                  onclick="downloadResume()">
+            Download PDF
+          </button>
 
         </div>
+      </div>
 
     </div>
 
+    <div class="col-lg-4">
 
-    <!-- Recent Activity -->
+      <div class="card">
+        <div class="card-body">
 
-    <div class="row mt-4">
+          <h5 class="mb-3">Recent Activity</h5>
 
-        <div class="col-lg-12">
-
-            <div class="card shadow-sm border-0">
-
-                <div class="card-body">
-
-                    <h5 class="mb-3">
-
-                        Recent Activity
-
-                    </h5>
-
-                    <ul
-                        id="activityList"
-                        class="list-group">
-
-                        <li class="list-group-item text-muted">
-
-                            No recent activity.
-
-                        </li>
-
-                    </ul>
-
-                </div>
-
-            </div>
+          <ul id="activityList" class="list-group">
+            <li class="list-group-item text-muted">
+              No recent activity.
+            </li>
+          </ul>
 
         </div>
+      </div>
 
     </div>
+
+  </div>
 
 </div>
+
+<script>
+
+function loadDashboard(){
+
+    PIBM.call(
+        "loadDashboard",
+        [],
+        function(response){
+
+            if(!response.success){
+
+                PIBM.toast(response.message);
+
+                return;
+
+            }
+
+            const data=response.data;
+
+            document.getElementById("studentName").textContent=data.student.name||"";
+            document.getElementById("studentDisplayName").textContent=data.student.name||"";
+            document.getElementById("studentId").textContent=data.student.studentId||"";
+            document.getElementById("studentProgram").textContent=data.student.program||"";
+            document.getElementById("studentBatch").textContent=data.student.batch||"";
+
+            const pct=data.completion.overall||0;
+
+            document.getElementById("completionBar").style.width=pct+"%";
+            document.getElementById("completionText").textContent=pct+"% Complete";
+
+            updateBadge("personalStatus",data.completion.personal);
+            updateBadge("educationStatus",data.completion.education);
+            updateBadge("experienceStatus",data.completion.experience);
+            updateBadge("internshipStatus",data.completion.internship);
+            updateBadge("projectStatus",data.completion.projects);
+            updateBadge("skillStatus",data.completion.skills);
+            updateBadge("certificationStatus",data.completion.certifications);
+            updateBadge("achievementStatus",data.completion.achievements);
+
+        }
+    );
+
+}
+
+function updateBadge(id,status){
+
+    const badge=document.getElementById(id);
+
+    if(!badge) return;
+
+    badge.className=status?
+      "badge bg-success":
+      "badge bg-warning";
+
+    badge.textContent=status?
+      "Completed":
+      "Pending";
+
+}
+
+</script>

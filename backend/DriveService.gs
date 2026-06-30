@@ -43,37 +43,18 @@ function getStudentResumeFolder(studentId, studentName) {
 }
 
 /**
- * Saves PDF blob into Drive.
+ * Generates (via ResumeService.generateResume, which already saves
+ * into the student's Drive folder) and returns the file info.
+ * Kept as a separate entry point so the UI has an explicit
+ * "Save to Drive" action distinct from "Generate PDF".
  */
-function saveResumeToDrive(templateName) {
+function saveResumeToDrive(studentId, templateName) {
 
-  const data = getResumeData();
+  if (!studentId) {
+    throw new Error("Student ID is required.");
+  }
 
-  const result = generateResume(templateName);
-
-  const pdfBlob = UrlFetchApp.fetch(result.url)
-      .getBlob()
-      .setName(templateName + ".pdf");
-
-  const studentId =
-    (data.personal && (data.personal.Student_ID || data.personal.StudentId))
-      || "UNKNOWN";
-
-  const studentName =
-    ((data.personal?.First_Name || "") + " " +
-     (data.personal?.Last_Name || "")).trim() || "Student";
-
-  const folder = getStudentResumeFolder(studentId, studentName);
-
-  const file = folder.createFile(pdfBlob);
-
-  return {
-    success: true,
-    fileId: file.getId(),
-    fileName: file.getName(),
-    folderId: folder.getId(),
-    url: file.getUrl()
-  };
+  return generateResume(studentId, templateName);
 }
 
 /**

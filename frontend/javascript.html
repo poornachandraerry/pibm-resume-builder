@@ -1,311 +1,172 @@
+
 <script>
-/* ==========================================================
-   PIBM Resume Builder v1.0
-   Frontend Application Engine
-   ========================================================== */
-
-const PIBM = {
-
-    /* ======================================================
-       Application State
-    ====================================================== */
-
-    state: {
-
-        currentModule: "dashboard",
-
-        studentId: "",
-
-        resumeType: "",
-
-        profile: {}
-
-    },
-
-    /* ======================================================
-       Initialize Application
-    ====================================================== */
-
-    init() {
-
-        console.log("PIBM Resume Builder Started");
-
-        this.bindSidebar();
-
-        this.loadModule("dashboard");
-
-    },
-
-    /* ======================================================
-       Sidebar Navigation
-    ====================================================== */
-
-    bindSidebar() {
-
-        document.querySelectorAll("#sidebar li").forEach(menu => {
-
-            menu.addEventListener("click", () => {
-
-                document.querySelectorAll("#sidebar li")
-                    .forEach(item => item.classList.remove("active"));
-
-                menu.classList.add("active");
-
-                this.loadModule(menu.dataset.page);
-
-            });
-
-        });
-
-    },
-
-    /* ======================================================
-       Module Loader
-    ====================================================== */
-
-    loadModule(moduleName) {
-
-        this.state.currentModule = moduleName;
-
-        this.UI.showLoader();
-
-        google.script.run
-
-            .withSuccessHandler(html => {
-
-                document.getElementById("content").innerHTML = html;
-
-                this.UI.hideLoader();
-
-                switch(moduleName){
-
-                    case "personal":
-
-                        this.Personal.init();
-
-                        break;
-
-                }
-
-            })
-
-            .withFailureHandler(error => {
-
-                this.UI.hideLoader();
-
-                this.UI.toast(error.message);
-
-            })
-
-            .getModule(moduleName);
-
-    },
-
-    /* ======================================================
-       Generic Apps Script Call
-    ====================================================== */
-
-    call(serverFunction, successCallback, ...args){
-
-        this.UI.showLoader();
-
-        let runner = google.script.run
-
-            .withSuccessHandler(result=>{
-
-                this.UI.hideLoader();
-
-                if(successCallback){
-
-                    successCallback(result);
-
-                }
-
-            })
-
-            .withFailureHandler(error=>{
-
-                this.UI.hideLoader();
-
-                this.UI.toast(error.message);
-
-            });
-
-        runner[serverFunction](...args);
-
-    },
-
-    /* ======================================================
-       Personal Module
-    ====================================================== */
-
-    Personal : {
-
-        init(){
-
-            console.log("Personal Module Loaded");
-
-        },
-
-        resetForm(){
-
-            document.querySelectorAll(
-                "#content input,#content textarea,#content select"
-            ).forEach(control=>{
-
-                if(control.readOnly) return;
-
-                if(control.tagName==="SELECT"){
-
-                    control.selectedIndex=0;
-
-                }
-
-                else{
-
-                    control.value="";
-
-                }
-
-            });
-
-            PIBM.UI.toast("Form Reset");
-
-        },
-
-        getFormData(){
-
-            return{
-
-                Student_ID : document.getElementById("Student_ID")?.value || "",
-
-                Full_Name : document.getElementById("Full_Name")?.value || "",
-
-                Email : document.getElementById("Email")?.value || "",
-
-                Mobile : document.getElementById("Mobile")?.value || "",
-
-                Alternate_Mobile : document.getElementById("Alternate_Mobile")?.value || "",
-
-                Date_of_Birth : document.getElementById("Date_of_Birth")?.value || "",
-
-                Gender : document.getElementById("Gender")?.value || "",
-
-                LinkedIn_URL : document.getElementById("LinkedIn_URL")?.value || "",
-
-                GitHub_URL : document.getElementById("GitHub_URL")?.value || "",
-
-                Portfolio_URL : document.getElementById("Portfolio_URL")?.value || "",
-
-                Address : document.getElementById("Address")?.value || "",
-
-                City : document.getElementById("City")?.value || "",
-
-                State : document.getElementById("State")?.value || "",
-
-                Pincode : document.getElementById("Pincode")?.value || "",
-
-                Resume_Type : document.getElementById("Resume_Type")?.value || ""
-
-            };
-
-        },
-
-        validate(data){
-
-            if(data.Full_Name.trim()===""){
-
-                PIBM.UI.toast("Full Name is required.");
-
-                return false;
-
-            }
-
-            if(data.Email.trim()===""){
-
-                PIBM.UI.toast("Email is required.");
-
-                return false;
-
-            }
-
-            if(data.Mobile.trim()===""){
-
-                PIBM.UI.toast("Mobile Number is required.");
-
-                return false;
-
-            }
-
-            return true;
-
-        },
-
-        save(){
-
-            const data=this.getFormData();
-
-            if(!this.validate(data))
-                return;
-
-            console.log(data);
-
-            PIBM.UI.toast("Backend integration will be connected next.");
-
-        }
-
-    },
-
-    /* ======================================================
-       UI Helpers
-    ====================================================== */
-
-    UI : {
-
-        showLoader(){
-
-            document
-                .getElementById("loader")
-                .classList.remove("hidden");
-
-        },
-
-        hideLoader(){
-
-            document
-                .getElementById("loader")
-                .classList.add("hidden");
-
-        },
-
-        toast(message){
-
-            const toast=document.getElementById("toast");
-
-            toast.innerHTML=message;
-
-            toast.style.display="block";
-
-            setTimeout(()=>{
-
-                toast.style.display="none";
-
-            },3000);
-
-        }
-
+const PIBM={
+
+state:{
+ studentId:"STU000001",
+ currentModule:"dashboard",
+ profile:{}
+},
+
+init(){
+ this.loadUser();
+ this.loadModule("dashboard");
+},
+
+loadUser(){
+ google.script.run
+ .withSuccessHandler(function(user){
+    if(!user) return;
+    PIBM.state.studentId=user.studentId||"";
+    const el=document.getElementById("userInfo");
+    if(el){
+      el.innerHTML="<strong>"+user.name+"</strong>";
+    }
+ })
+ .getCurrentUser();
+},
+
+loadModule(moduleName){
+
+ PIBM.state.currentModule=moduleName;
+
+ PIBM.showLoader();
+
+ google.script.run
+ .withSuccessHandler(function(html){
+
+    const content=document.getElementById("content");
+    if(content){
+      content.innerHTML=html;
     }
 
-};
+    PIBM.hideLoader();
 
-/* ==========================================================
-   Application Start
-   ========================================================== */
+    PIBM.afterModuleLoad(moduleName);
+
+ })
+ .withFailureHandler(function(err){
+
+    PIBM.hideLoader();
+
+    PIBM.toast(err.message||err);
+
+ })
+ .getModule(moduleName);
+
+},
+
+afterModuleLoad(module){
+
+ switch(module){
+
+   case "dashboard":
+      if(typeof loadDashboard==="function"){
+         loadDashboard();
+      }
+      break;
+
+   case "personal":
+      if(typeof initPersonal==="function"){
+         initPersonal();
+      }
+      break;
+
+ }
+
+},
+
+call(serverFunction,args,callback){
+
+ PIBM.showLoader();
+
+ let runner=google.script.run
+ .withSuccessHandler(function(result){
+
+    PIBM.hideLoader();
+
+    if(callback){
+      callback(result);
+    }
+
+ })
+ .withFailureHandler(function(err){
+
+    PIBM.hideLoader();
+
+    PIBM.toast(err.message||err);
+
+ });
+
+ runner[serverFunction].apply(runner,args||[]);
+
+},
+
+showLoader(){
+ const x=document.getElementById("loader");
+ if(x)x.classList.remove("d-none");
+},
+
+hideLoader(){
+ const x=document.getElementById("loader");
+ if(x)x.classList.add("d-none");
+},
+
+toast(message){
+
+ const t=document.getElementById("toast");
+
+ if(!t) return;
+
+ t.innerHTML=message;
+
+ t.classList.remove("d-none");
+
+ setTimeout(function(){
+
+   t.classList.add("d-none");
+
+ },3000);
+
+},
+
+previewResume(){
+
+ PIBM.loadModule("preview");
+
+},
+
+generateResume(){
+
+ PIBM.loadModule("preview");
+
+},
+
+downloadResume(){
+
+ PIBM.loadModule("preview");
+
+}
+
+};
 
 window.onload=function(){
-
-    PIBM.init();
-
+ PIBM.init();
 };
 
+function openModule(name){
+ PIBM.loadModule(name);
+}
+
+function previewResume(){
+ PIBM.previewResume();
+}
+
+function generateResume(){
+ PIBM.generateResume();
+}
+
+function downloadResume(){
+ PIBM.downloadResume();
+}
 </script>

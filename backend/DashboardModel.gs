@@ -4,14 +4,13 @@
  * DashboardModel.gs
  * ----------------------------------------------------------
  * Dashboard Model
- * Contains reusable business logic and calculations.
  * ==========================================================
  */
 
 
 /**
  * ==========================================================
- * Empty Completion Object
+ * Blank Completion Status
  * ==========================================================
  */
 function getBlankCompletionStatus() {
@@ -43,147 +42,85 @@ function getBlankCompletionStatus() {
 
 /**
  * ==========================================================
- * Calculate Overall Completion
+ * Blank Dashboard Student
  * ==========================================================
  */
-function calculateOverallCompletion(completion) {
-
-  const keys = [
-
-    "personal",
-
-    "education",
-
-    "experience",
-
-    "internship",
-
-    "projects",
-
-    "skills",
-
-    "certifications",
-
-    "achievements"
-
-  ];
-
-  let completed = 0;
-
-  keys.forEach(function (key) {
-
-    if (completion[key]) {
-
-      completed++;
-
-    }
-
-  });
-
-  return Math.round((completed / keys.length) * 100);
-
-}
-
-
-
-/**
- * ==========================================================
- * Safe Length
- * ==========================================================
- */
-function safeLength(serviceFunction, studentId) {
-
-  try {
-
-    if (typeof serviceFunction !== "function") {
-
-      return 0;
-
-    }
-
-    const result = serviceFunction(studentId);
-
-    if (!result) {
-
-      return 0;
-
-    }
-
-    return result.length;
-
-  }
-
-  catch (e) {
-
-    return 0;
-
-  }
-
-}
-
-
-
-/**
- * ==========================================================
- * Personal Profile Complete?
- * ==========================================================
- */
-function isPersonalProfileComplete(profile) {
-
-  if (!profile) {
-
-    return false;
-
-  }
-
-  return (
-
-    !isEmpty(profile.Full_Name) &&
-
-    !isEmpty(profile.Email) &&
-
-    !isEmpty(profile.Mobile)
-
-  );
-
-}
-
-
-
-/**
- * ==========================================================
- * Build Student Summary
- * ==========================================================
- */
-function buildDashboardStudent(profile) {
+function getBlankDashboardStudent() {
 
   return {
 
-    studentId: profile.Student_ID || "",
+    studentId: "",
 
-    name: profile.Full_Name || "",
+    name: "",
 
-    email: profile.Email || "",
+    email: "",
 
-    mobile: profile.Mobile || "",
+    mobile: "",
 
-    batch: profile.Batch || "",
+    batch: "",
 
-    program: profile.Program || "",
+    program: "",
 
-    specialization: profile.Specialization || "",
+    specialization: "",
 
-    photo: profile.Photo_File_ID || ""
+    photo: ""
 
   };
 
 }
 
 
+/**
+ * ==========================================================
+ * Blank Dashboard
+ * ==========================================================
+ */
+function getBlankDashboard() {
+
+  return {
+
+    student: getBlankDashboardStudent(),
+
+    completion: getBlankCompletionStatus(),
+
+    activity: []
+
+  };
+
+}
+
 
 /**
  * ==========================================================
- * Placeholder Recent Activity
+ * Build Dashboard Student
+ * ==========================================================
+ */
+function buildDashboardStudent(profile) {
+
+  const student = getBlankDashboardStudent();
+
+  if (!profile) {
+    return student;
+  }
+
+  student.studentId = profile.Student_ID || "";
+  student.name = profile.Full_Name || "";
+  student.email = profile.Email || "";
+  student.mobile = profile.Mobile || "";
+  student.batch = profile.Batch || "";
+  student.program = profile.Program || "";
+  student.specialization = profile.Specialization || "";
+  student.photo = profile.Photo_File_ID || "";
+
+  return student;
+
+}
+
+
+/**
+ * ==========================================================
+ * Build Recent Activity
+ * Placeholder for v1
  * ==========================================================
  */
 function buildRecentActivity(studentId) {
