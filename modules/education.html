@@ -1,121 +1,83 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Education</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    .card-box{border:1px solid #ddd;border-radius:10px;padding:20px;margin-bottom:15px}
-  </style>
-</head>
-<body>
 <div class="container-fluid py-3">
-  <div id="msg"></div>
-
+  <div id="eduMsg"></div>
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h4>Education Details</h4>
-    <button class="btn btn-success" onclick="addRow()">+ Add Education</button>
+    <button class="btn btn-success btn-sm" onclick="addEduRow()">+ Add Education</button>
   </div>
-
   <div id="educationContainer"></div>
-
   <div class="text-end mt-3">
-    <button class="btn btn-primary" onclick="saveEducation()">Save Education</button>
+    <button class="btn btn-primary" onclick="saveEdu()">Save Education</button>
   </div>
 </div>
-
-<template id="eduTemplate">
-<div class="card-box edu-item">
-<div class="row g-3">
-<div class="col-md-6">
-<label class="form-label">Qualification</label>
-<input class="form-control qualification">
-</div>
-<div class="col-md-6">
-<label class="form-label">Institute</label>
-<input class="form-control institute">
-</div>
-<div class="col-md-4">
-<label class="form-label">Board / University</label>
-<input class="form-control board">
-</div>
-<div class="col-md-2">
-<label class="form-label">Year</label>
-<input class="form-control year" maxlength="4">
-</div>
-<div class="col-md-2">
-<label class="form-label">Percentage / CGPA</label>
-<input class="form-control score">
-</div>
-<div class="col-md-3">
-<label class="form-label">Specialization</label>
-<input class="form-control specialization">
-</div>
-<div class="col-md-1 d-flex align-items-end">
-<button class="btn btn-outline-danger w-100" onclick="this.closest('.edu-item').remove()">X</button>
-</div>
-</div>
-</div>
-</template>
 
 <script>
 loadEducation();
 
-function addRow(data={}){
- const node=document.getElementById("eduTemplate").content.cloneNode(true);
- const item=node.querySelector(".edu-item");
- item.querySelector(".qualification").value=data.Qualification||"";
- item.querySelector(".institute").value=data.Institute||"";
- item.querySelector(".board").value=data.Board||"";
- item.querySelector(".year").value=data.Year||"";
- item.querySelector(".score").value=data.Score||"";
- item.querySelector(".specialization").value=data.Specialization||"";
- document.getElementById("educationContainer").appendChild(node);
+function loadEducation() {
+  google.script.run
+    .withSuccessHandler(function(list) {
+      document.getElementById("educationContainer").innerHTML = "";
+      if (Array.isArray(list) && list.length) {
+        list.forEach(addEduRow);
+      } else {
+        addEduRow();
+      }
+    })
+    .withFailureHandler(function(e) { eduShow(e.message || e, "danger"); })
+    .getEducationList();
 }
 
-function loadEducation(){
- google.script.run
- .withSuccessHandler(function(list){
-    document.getElementById("educationContainer").innerHTML="";
-    if(Array.isArray(list) && list.length){
-      list.forEach(addRow);
-    }else{
-      addRow();
-    }
- })
- .withFailureHandler(function(e){show(e.message,"danger");})
- .getEducationList();
+function addEduRow(data) {
+  data = data || {};
+  var d = document.getElementById("educationContainer");
+  var id = "edu_" + Date.now() + "_" + Math.random().toString(36).substr(2,5);
+  var html = '<div class="border rounded p-3 mb-3 edu-item" id="' + id + '">' +
+    '<div class="row g-3">' +
+    '<div class="col-md-6"><label class="form-label">Qualification <span class="text-danger">*</span></label>' +
+    '<input class="form-control edu-qual" value="' + esc(data.Qualification||"") + '" placeholder="e.g. MBA, B.Tech, HSC"></div>' +
+    '<div class="col-md-6"><label class="form-label">Institute</label>' +
+    '<input class="form-control edu-inst" value="' + esc(data.Institute||"") + '" placeholder="College / School name"></div>' +
+    '<div class="col-md-4"><label class="form-label">Board / University</label>' +
+    '<input class="form-control edu-board" value="' + esc(data.Board||"") + '" placeholder="e.g. Pune University"></div>' +
+    '<div class="col-md-2"><label class="form-label">Year</label>' +
+    '<input class="form-control edu-year" value="' + esc(data.Year||"") + '" maxlength="4" placeholder="2024"></div>' +
+    '<div class="col-md-3"><label class="form-label">Percentage / CGPA</label>' +
+    '<input class="form-control edu-score" value="' + esc(data.Score||"") + '" placeholder="e.g. 8.5 or 85%"></div>' +
+    '<div class="col-md-2"><label class="form-label">Specialization</label>' +
+    '<input class="form-control edu-spec" value="' + esc(data.Specialization||"") + '" placeholder="e.g. Finance"></div>' +
+    '<div class="col-md-1 d-flex align-items-end">' +
+    '<button class="btn btn-outline-danger w-100" onclick="document.getElementById(\'' + id + '\').remove()">✕</button></div>' +
+    '</div></div>';
+  d.innerHTML += html;
 }
 
-function saveEducation(){
- const rows=[...document.querySelectorAll(".edu-item")];
- const data=[];
- for(const r of rows){
-   const obj={
-    Qualification:r.querySelector(".qualification").value.trim(),
-    Institute:r.querySelector(".institute").value.trim(),
-    Board:r.querySelector(".board").value.trim(),
-    Year:r.querySelector(".year").value.trim(),
-    Score:r.querySelector(".score").value.trim(),
-    Specialization:r.querySelector(".specialization").value.trim()
-   };
-   if(obj.Qualification===""){show("Qualification is required.","danger");return;}
-   data.push(obj);
- }
- google.script.run
- .withSuccessHandler(()=>show("Education details saved successfully.","success"))
- .withFailureHandler(e=>show(e.message,"danger"))
- .saveEducationList(data);
+function saveEdu() {
+  var items = document.querySelectorAll(".edu-item");
+  var data = [];
+  for (var i = 0; i < items.length; i++) {
+    var r = items[i];
+    var q = r.querySelector(".edu-qual").value.trim();
+    if (!q) { eduShow("Qualification is required for all rows.", "danger"); return; }
+    data.push({
+      Qualification: q,
+      Institute:     r.querySelector(".edu-inst").value.trim(),
+      Board:         r.querySelector(".edu-board").value.trim(),
+      Year:          r.querySelector(".edu-year").value.trim(),
+      Score:         r.querySelector(".edu-score").value.trim(),
+      Specialization:r.querySelector(".edu-spec").value.trim()
+    });
+  }
+  google.script.run
+    .withSuccessHandler(function() { eduShow("Education saved successfully!", "success"); })
+    .withFailureHandler(function(e) { eduShow(e.message || e, "danger"); })
+    .saveEducationList(data);
 }
 
-function show(msg,type){
- document.getElementById("msg").innerHTML=
- `<div class="alert alert-${type} alert-dismissible fade show">${msg}
- <button class="btn-close" data-bs-dismiss="alert"></button></div>`;
+function eduShow(msg, type) {
+  document.getElementById("eduMsg").innerHTML =
+    '<div class="alert alert-' + type + ' alert-dismissible fade show">' + msg +
+    '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
 }
+
+function esc(s) { return String(s).replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>

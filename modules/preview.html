@@ -1,253 +1,169 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<base target="_top">
-<title>Resume Preview</title>
+<div class="container-fluid py-3">
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <div class="d-flex flex-wrap gap-2 align-items-center mb-4 p-3 bg-white border rounded">
+    <div>
+      <label class="form-label mb-1 small fw-bold">Template</label>
+      <select id="templateSelect" class="form-select form-select-sm" style="min-width:180px" onchange="renderPreview()">
+        <option value="FR1">FR1 — Fresher Classic</option>
+        <option value="FR2">FR2 — Fresher Modern</option>
+        <option value="ER1">ER1 — Experienced</option>
+        <option value="ER2">ER2 — Executive</option>
+        <option value="ER3">ER3 — Minimal</option>
+        <option value="ER4">ER4 — Premium</option>
+      </select>
+    </div>
+    <div class="ms-auto d-flex gap-2 flex-wrap">
+      <button class="btn btn-secondary btn-sm" onclick="loadResume()">↺ Refresh</button>
+      <button class="btn btn-primary btn-sm" onclick="doGenerate()">⬇ Generate PDF</button>
+      <button class="btn btn-success btn-sm" onclick="doEmail()">✉ Email Resume</button>
+    </div>
+  </div>
 
-<style>
-body{background:#f5f6f8}
-.toolbar{position:sticky;top:0;z-index:1000;background:#fff;border-bottom:1px solid #ddd;padding:12px}
-.preview{background:#fff;min-height:1100px;border:1px solid #ddd;border-radius:8px;padding:40px}
-.section-title{font-weight:700;border-bottom:2px solid #0d6efd;padding-bottom:4px;margin-top:20px}
-.small-label{font-size:.8rem;color:#666}
-.skill-pill{display:inline-block;background:#eef3ff;color:#0d6efd;padding:2px 10px;border-radius:12px;margin:2px;font-size:.85rem}
-</style>
-</head>
-<body>
+  <div id="previewMsg"></div>
 
-<div class="toolbar">
-<div class="container-fluid">
-<div class="row g-2 align-items-center">
-
-<div class="col-lg-3">
-<label class="small-label">Resume Template</label>
-<select id="template" class="form-select" onchange="renderPreview()">
-<option value="FR1">FR1 - Fresher Blue</option>
-<option value="FR2">FR2 - Fresher Modern</option>
-<option value="ER1">ER1 - Experienced Professional</option>
-<option value="ER2">ER2 - Executive</option>
-<option value="ER3">ER3 - Minimal</option>
-<option value="ER4">ER4 - Premium</option>
-</select>
-</div>
-
-<div class="col-lg-9 text-lg-end">
-<button class="btn btn-secondary" onclick="loadResume()">Refresh</button>
-<button class="btn btn-primary" onclick="generateResumePdf()">Generate PDF</button>
-<button class="btn btn-success" onclick="saveToDrive()">Save to Drive</button>
-<button class="btn btn-info text-white" onclick="emailResumeToStudent()">Email Resume</button>
-</div>
-
-</div>
-</div>
-</div>
-
-<div class="container-fluid py-4">
-
-<div id="message"></div>
-
-<div id="resumePreview" class="preview">
-<div class="text-center text-muted">
-Loading Resume...
-</div>
-</div>
+  <div id="resumePreview" class="bg-white border rounded p-4" style="min-height:600px">
+    <div class="text-center text-muted py-5">Loading resume data...</div>
+  </div>
 
 </div>
 
 <script>
-
-let resumeData={};
-
-function currentStudentId(){
-  return (window.PIBM && PIBM.state && PIBM.state.studentId) || "STU000001";
-}
+var _resumeData = {};
 
 loadResume();
 
-function loadResume(){
-
-google.script.run
-.withSuccessHandler(function(data){
-
-resumeData=data||{};
-renderPreview();
-
-})
-.withFailureHandler(function(e){
-
-show(e.message,"danger");
-
-})
-.getResumeData(currentStudentId());
-
+function loadResume() {
+  google.script.run
+    .withSuccessHandler(function(data) {
+      _resumeData = data || {};
+      renderPreview();
+    })
+    .withFailureHandler(function(e) { pvShow(e.message || e, "danger"); })
+    .getResumeData(PIBM.state.studentId || "STU000001");
 }
 
-function renderPreview(){
+function renderPreview() {
+  var p = _resumeData.personal || {};
+  var education = _resumeData.education || [];
+  var experience = _resumeData.experience || [];
+  var internships = _resumeData.internships || [];
+  var projects = _resumeData.projects || [];
+  var skills = _resumeData.skills || [];
+  var certs = _resumeData.certifications || [];
+  var ach = _resumeData.achievements || [];
 
-const p=document.getElementById("resumePreview");
+  var html = '<div style="font-family:Georgia,serif;max-width:800px;margin:auto">';
 
-const personal=resumeData.personal||{};
-const education=resumeData.education||[];
-const experience=resumeData.experience||[];
-const internships=resumeData.internships||[];
-const projects=resumeData.projects||[];
-const skills=resumeData.skills||[];
-const certifications=resumeData.certifications||[];
-const achievements=resumeData.achievements||[];
+  // Header
+  html += '<div style="text-align:center;border-bottom:2px solid #0d3b6e;padding-bottom:12px;margin-bottom:16px">';
+  html += '<h2 style="margin:0;color:#0d3b6e">' + x(p.name || p.Full_Name || "") + '</h2>';
+  html += '<div>' + [p.email||p.Email, p.mobile||p.Mobile, p.linkedin||p.LinkedIn].filter(Boolean).map(x).join(" | ") + '</div>';
+  if (p.address || p.Address) html += '<div>' + x(p.address || p.Address || "") + '</div>';
+  html += '</div>';
 
-let html="";
+  // Objective
+  if (p.objective || p.Objective) {
+    html += sec("Career Objective") + '<p>' + x(p.objective || p.Objective) + '</p>';
+  }
 
-html+=`
-<h2>${personal.name||""}</h2>
-<div>${personal.email||""} | ${personal.mobile||""}</div>
-<div>${personal.linkedin||""}</div>
-`;
+  // Education
+  if (education.length) {
+    html += sec("Education");
+    education.forEach(function(e) {
+      html += '<div style="margin-bottom:8px"><strong>' + x(e.Qualification||e.degree||"") + '</strong>';
+      if (e.Specialization||e.specialization) html += ' — ' + x(e.Specialization||e.specialization);
+      html += '<br>' + x(e.Institute||e.institute||"");
+      if (e.Board||e.university) html += ', ' + x(e.Board||e.university);
+      html += ' <span style="color:#666">(' + x(e.Year||e.passingYear||"") + ')';
+      if (e.Score||e.cgpa) html += ' | ' + x(e.Score||e.cgpa);
+      html += '</span></div>';
+    });
+  }
 
-if(personal.objective){
-html+=`<div class="section-title">Career Objective</div><p>${personal.objective}</p>`;
+  // Experience
+  if (experience.length) {
+    html += sec("Work Experience");
+    experience.forEach(function(e) {
+      html += '<div style="margin-bottom:10px"><strong>' + x(e.Designation||e.designation||"") + '</strong> — ' + x(e.Company||e.company||"");
+      html += '<br><em style="color:#666">' + x(e.Start_Date||e.startDate||"") + ' – ' + x(e.End_Date||e.endDate||"Present") + '</em>';
+      if (e.Responsibilities||e.responsibilities) html += '<p style="margin:4px 0 0">' + x(e.Responsibilities||e.responsibilities) + '</p>';
+      html += '</div>';
+    });
+  }
+
+  // Internships
+  if (internships.length) {
+    html += sec("Internships");
+    internships.forEach(function(i) {
+      html += '<div style="margin-bottom:8px"><strong>' + x(i.Role||i.role||i.Designation||"") + '</strong> — ' + x(i.Organization||i.company||"");
+      html += '<br><em style="color:#666">' + x(i.Start_Date||"") + ' – ' + x(i.End_Date||"") + '</em>';
+      if (i.Description) html += '<p style="margin:4px 0 0">' + x(i.Description) + '</p>';
+      html += '</div>';
+    });
+  }
+
+  // Projects
+  if (projects.length) {
+    html += sec("Projects");
+    projects.forEach(function(p) {
+      html += '<div style="margin-bottom:8px"><strong>' + x(p.Title||p.title||p.Project_Title||"") + '</strong>';
+      if (p.Technologies||p.technologies) html += ' <em style="color:#666">(' + x(p.Technologies||p.technologies) + ')</em>';
+      if (p.Description||p.description) html += '<p style="margin:4px 0 0">' + x(p.Description||p.description) + '</p>';
+      html += '</div>';
+    });
+  }
+
+  // Skills
+  if (skills.length) {
+    html += sec("Skills");
+    html += '<div>' + skills.map(function(s){ return '<span style="display:inline-block;background:#eef3ff;color:#0d3b6e;padding:2px 10px;border-radius:12px;margin:2px;font-size:.9em">' + x(s.name||s.Skill_Name||"") + '</span>'; }).join("") + '</div>';
+  }
+
+  // Certifications
+  if (certs.length) {
+    html += sec("Certifications") + '<ul>';
+    certs.forEach(function(c){ html += '<li>' + x(c.Certification_Name||c.name||"") + (c.Organization ? " — " + x(c.Organization) : "") + '</li>'; });
+    html += '</ul>';
+  }
+
+  // Achievements
+  if (ach.length) {
+    html += sec("Achievements") + '<ul>';
+    ach.forEach(function(a){ html += '<li>' + x(a.Title||a.title||"") + '</li>'; });
+    html += '</ul>';
+  }
+
+  html += '</div>';
+  document.getElementById("resumePreview").innerHTML = html;
 }
 
-html+='<div class="section-title">Education</div>';
-if(!education.length){
-html+='<p class="text-muted">No education details added yet.</p>';
-}
-education.forEach(function(e){
-html+=`
-<div class="mb-2">
-<strong>${e.degree||e.course||""}</strong>${e.specialization?" - "+e.specialization:""}<br>
-${e.institute||""}${e.university?", "+e.university:""} (${e.passingYear||e.endYear||""})<br>
-${e.cgpa?"CGPA/%: "+e.cgpa:""}
-</div>`;
-});
-
-if(experience.length){
-html+='<div class="section-title">Experience</div>';
-experience.forEach(function(e){
-html+=`
-<div class="mb-3">
-<strong>${e.designation||""}</strong> - ${e.company||""}<br>
-${e.startDate||""} - ${e.endDate||"Present"}
-<p>${e.responsibilities||""}</p>
-</div>`;
-});
+function sec(title) {
+  return '<h4 style="border-bottom:1px solid #0d3b6e;color:#0d3b6e;margin-top:16px;padding-bottom:4px">' + title + '</h4>';
 }
 
-if(internships.length){
-html+='<div class="section-title">Internships</div>';
-internships.forEach(function(i){
-html+=`<p><strong>${i.designation||i.role||""}</strong> - ${i.company||""}<br>${i.responsibilities||""}</p>`;
-});
+function x(s) { return String(s == null ? "" : s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+function doGenerate() {
+  pvShow("Generating PDF...", "info");
+  google.script.run
+    .withSuccessHandler(function(r) {
+      pvShow('PDF ready! <a href="' + r.url + '" target="_blank" class="alert-link">Click here to open</a>', "success");
+    })
+    .withFailureHandler(function(e) { pvShow(e.message || e, "danger"); })
+    .generateResume(PIBM.state.studentId || "STU000001", document.getElementById("templateSelect").value);
 }
 
-if(projects.length){
-html+='<div class="section-title">Projects</div>';
-projects.forEach(function(pr){
-html+=`<p><strong>${pr.title||""}</strong><br>${pr.description||""}${pr.technologies?"<br><em>Tech: "+pr.technologies+"</em>":""}</p>`;
-});
+function doEmail() {
+  pvShow("Sending email...", "info");
+  google.script.run
+    .withSuccessHandler(function() { pvShow("Resume emailed successfully!", "success"); })
+    .withFailureHandler(function(e) { pvShow(e.message || e, "danger"); })
+    .emailResume(PIBM.state.studentId || "STU000001", document.getElementById("templateSelect").value);
 }
 
-if(certifications.length){
-html+='<div class="section-title">Certifications</div><ul>';
-certifications.forEach(function(c){
-html+=`<li>${c.name||""}${c.organization?" - "+c.organization:""}</li>`;
-});
-html+="</ul>";
+function pvShow(msg, type) {
+  document.getElementById("previewMsg").innerHTML =
+    '<div class="alert alert-' + type + ' alert-dismissible fade show">' + msg +
+    '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
 }
-
-if(achievements.length){
-html+='<div class="section-title">Achievements</div><ul>';
-achievements.forEach(function(a){
-html+=`<li>${a.title||""}</li>`;
-});
-html+="</ul>";
-}
-
-if(skills.length){
-html+='<div class="section-title">Skills</div><div>';
-skills.forEach(function(s){
-html+=`<span class="skill-pill">${s.name||""}</span>`;
-});
-html+="</div>";
-}
-
-p.innerHTML=html;
-
-}
-
-function generateResumePdf(){
-
-google.script.run
-.withSuccessHandler(function(r){
-
-show("Resume generated successfully.","success");
-
-if(r&&r.url){
-window.open(r.url,"_blank");
-}
-
-})
-.withFailureHandler(function(e){
-
-show(e.message,"danger");
-
-})
-.generateResume(currentStudentId(),document.getElementById("template").value);
-
-}
-
-function saveToDrive(){
-
-google.script.run
-.withSuccessHandler(function(r){
-
-show("Resume saved to Google Drive.","success");
-
-if(r&&r.url){
-window.open(r.url,"_blank");
-}
-
-})
-.withFailureHandler(function(e){
-
-show(e.message,"danger");
-
-})
-.saveResumeToDrive(currentStudentId(),document.getElementById("template").value);
-
-}
-
-function emailResumeToStudent(){
-
-google.script.run
-.withSuccessHandler(function(){
-
-show("Resume emailed successfully.","success");
-
-})
-.withFailureHandler(function(e){
-
-show(e.message,"danger");
-
-})
-.emailResume(currentStudentId(),document.getElementById("template").value);
-
-}
-
-function show(msg,type){
-
-document.getElementById("message").innerHTML=
-`<div class="alert alert-${type} alert-dismissible fade show">
-${msg}
-<button class="btn-close" data-bs-dismiss="alert"></button>
-</div>`;
-
-}
-
 </script>
-
-</body>
-</html>

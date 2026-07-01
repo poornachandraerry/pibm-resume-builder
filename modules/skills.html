@@ -1,0 +1,90 @@
+<div class="container-fluid py-3">
+
+  <div id="alertContainer"></div>
+
+  <div style="border:1px solid #dee2e6;border-radius:10px;padding:20px;background:#fff">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h4 class="mb-0">Skills</h4>
+      <button class="btn btn-primary btn-sm" onclick="addSkillRow()">+ Add Skill</button>
+    </div>
+
+    <div id="skillsList"></div>
+
+    <div class="text-end mt-3">
+      <button class="btn btn-success" onclick="saveSkills()">Save Skills</button>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+
+let skills = [];
+
+getSkillList();
+
+function getSkillList() {
+  google.script.run
+    .withSuccessHandler(function(data) {
+      skills = Array.isArray(data) ? data : [];
+      renderSkills();
+    })
+    .withFailureHandler(function(e) {
+      showAlert(e.message || e, "danger");
+    })
+    .getSkillList();
+}
+
+function renderSkills() {
+  const container = document.getElementById("skillsList");
+  if (!skills.length) {
+    container.innerHTML = '<p class="text-muted">No skills added yet. Click "+ Add Skill" to begin.</p>';
+    return;
+  }
+  container.innerHTML = skills.map(function(s, i) {
+    return '<div class="row g-2 mb-2 align-items-center">' +
+      '<div class="col-md-5"><input class="form-control" placeholder="Skill name" value="' + esc(s.name || s.Skill_Name || "") + '" onchange="skills[' + i + '].name=this.value"></div>' +
+      '<div class="col-md-4"><select class="form-select" onchange="skills[' + i + '].level=this.value">' +
+        ['Beginner','Intermediate','Advanced','Expert'].map(function(l){
+          return '<option value="' + l + '"' + ((s.level||s.Skill_Level||"")=== l?' selected':'') + '>' + l + '</option>';
+        }).join('') +
+      '</select></div>' +
+      '<div class="col-md-3"><button class="btn btn-outline-danger btn-sm w-100" onclick="removeSkill(' + i + ')">Remove</button></div>' +
+      '</div>';
+  }).join('');
+}
+
+function addSkillRow() {
+  skills.push({ name: "", level: "Intermediate" });
+  renderSkills();
+}
+
+function removeSkill(i) {
+  skills.splice(i, 1);
+  renderSkills();
+}
+
+function saveSkills() {
+  google.script.run
+    .withSuccessHandler(function() {
+      showAlert("Skills saved successfully.", "success");
+    })
+    .withFailureHandler(function(e) {
+      showAlert(e.message || e, "danger");
+    })
+    .saveSkillList(skills);
+}
+
+function esc(str) {
+  return String(str).replace(/"/g, "&quot;").replace(/</g, "&lt;");
+}
+
+function showAlert(msg, type) {
+  document.getElementById("alertContainer").innerHTML =
+    '<div class="alert alert-' + type + ' alert-dismissible fade show">' +
+    msg + '<button class="btn-close" data-bs-dismiss="alert"></button></div>';
+}
+
+</script>

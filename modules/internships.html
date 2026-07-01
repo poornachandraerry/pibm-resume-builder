@@ -1,121 +1,78 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<base target="_top">
-<title>Internships</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<style>
-.box{border:1px solid #ddd;border-radius:10px;padding:20px;margin-bottom:16px;background:#fff}
-</style>
-</head>
-<body>
 <div class="container-fluid py-3">
-<div id="alerts"></div>
-
-<div class="d-flex justify-content-between align-items-center mb-3">
-<h4>Internships</h4>
-<button class="btn btn-success" onclick="addInternship()">+ Add Internship</button>
+  <div id="intMsg"></div>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4>Internships</h4>
+    <button class="btn btn-success btn-sm" onclick="addIntRow()">+ Add Internship</button>
+  </div>
+  <div id="intContainer"></div>
+  <div class="text-end mt-3">
+    <button class="btn btn-primary" onclick="saveInt()">Save Internships</button>
+  </div>
 </div>
-
-<div id="internshipContainer"></div>
-
-<div class="text-end mt-3">
-<button class="btn btn-primary" onclick="saveInternships()">Save Internships</button>
-</div>
-</div>
-
-<template id="internTemplate">
-<div class="box intern-item">
-<div class="row g-3">
-<div class="col-md-6">
-<label class="form-label">Organization</label>
-<input class="form-control organization">
-</div>
-<div class="col-md-6">
-<label class="form-label">Role / Designation</label>
-<input class="form-control role">
-</div>
-<div class="col-md-3">
-<label class="form-label">Start Date</label>
-<input type="month" class="form-control start">
-</div>
-<div class="col-md-3">
-<label class="form-label">End Date</label>
-<input type="month" class="form-control end">
-</div>
-<div class="col-md-6">
-<label class="form-label">Mentor / Supervisor</label>
-<input class="form-control mentor">
-</div>
-<div class="col-12">
-<label class="form-label">Project Title</label>
-<input class="form-control project">
-</div>
-<div class="col-12">
-<label class="form-label">Description</label>
-<textarea rows="4" class="form-control description" placeholder="Describe responsibilities, learning and outcomes."></textarea>
-</div>
-<div class="col-12 text-end">
-<button type="button" class="btn btn-outline-danger" onclick="this.closest('.intern-item').remove()">Remove</button>
-</div>
-</div>
-</div>
-</template>
 
 <script>
 loadInternships();
 
-function addInternship(d={}){
- const n=document.getElementById("internTemplate").content.cloneNode(true);
- const i=n.querySelector(".intern-item");
- i.querySelector(".organization").value=d.Organization||"";
- i.querySelector(".role").value=d.Role||"";
- i.querySelector(".start").value=d.Start_Date||"";
- i.querySelector(".end").value=d.End_Date||"";
- i.querySelector(".mentor").value=d.Mentor||"";
- i.querySelector(".project").value=d.Project_Title||"";
- i.querySelector(".description").value=d.Description||"";
- internshipContainer.appendChild(n);
+function loadInternships() {
+  google.script.run
+    .withSuccessHandler(function(list) {
+      document.getElementById("intContainer").innerHTML = "";
+      if (Array.isArray(list) && list.length) { list.forEach(addIntRow); }
+      else { addIntRow(); }
+    })
+    .withFailureHandler(function(e) { intShow(e.message || e, "danger"); })
+    .getInternshipList();
 }
 
-function loadInternships(){
- google.script.run
- .withSuccessHandler(function(list){
-   internshipContainer.innerHTML="";
-   if(Array.isArray(list)&&list.length){list.forEach(addInternship);}else{addInternship();}
- })
- .withFailureHandler(e=>show(e.message,"danger"))
- .getInternshipList();
+function addIntRow(data) {
+  data = data || {};
+  var d = document.getElementById("intContainer");
+  var id = "int_" + Date.now() + "_" + Math.random().toString(36).substr(2,5);
+  d.innerHTML += '<div class="border rounded p-3 mb-3 int-item" id="' + id + '">' +
+    '<div class="row g-3">' +
+    '<div class="col-md-6"><label class="form-label">Organization <span class="text-danger">*</span></label>' +
+    '<input class="form-control int-org" value="' + esc(data.Organization||data.Company||"") + '" placeholder="Company / Organization"></div>' +
+    '<div class="col-md-6"><label class="form-label">Role</label>' +
+    '<input class="form-control int-role" value="' + esc(data.Role||data.Designation||"") + '" placeholder="e.g. Marketing Intern"></div>' +
+    '<div class="col-md-3"><label class="form-label">Start Date</label>' +
+    '<input class="form-control int-start" value="' + esc(data.Start_Date||"") + '" placeholder="Jun 2023"></div>' +
+    '<div class="col-md-3"><label class="form-label">End Date</label>' +
+    '<input class="form-control int-end" value="' + esc(data.End_Date||"") + '" placeholder="Aug 2023"></div>' +
+    '<div class="col-md-5"><label class="form-label">Location</label>' +
+    '<input class="form-control int-loc" value="' + esc(data.Location||"") + '" placeholder="Pune"></div>' +
+    '<div class="col-md-1 d-flex align-items-end">' +
+    '<button class="btn btn-outline-danger w-100" onclick="document.getElementById(\'' + id + '\').remove()">✕</button></div>' +
+    '<div class="col-12"><label class="form-label">Description</label>' +
+    '<textarea class="form-control int-desc" rows="3" placeholder="What did you work on?">' + esc(data.Description||"") + '</textarea></div>' +
+    '</div></div>';
 }
 
-function saveInternships(){
- const data=[];
- for(const row of document.querySelectorAll(".intern-item")){
-   const o={
-     Organization:row.querySelector(".organization").value.trim(),
-     Role:row.querySelector(".role").value.trim(),
-     Start_Date:row.querySelector(".start").value,
-     End_Date:row.querySelector(".end").value,
-     Mentor:row.querySelector(".mentor").value.trim(),
-     Project_Title:row.querySelector(".project").value.trim(),
-     Description:row.querySelector(".description").value.trim()
-   };
-   if(!o.Organization){show("Organization is required.","danger");return;}
-   if(!o.Role){show("Role / Designation is required.","danger");return;}
-   data.push(o);
- }
- google.script.run
- .withSuccessHandler(()=>show("Internship details saved successfully.","success"))
- .withFailureHandler(e=>show(e.message,"danger"))
- .saveInternshipList(data);
+function saveInt() {
+  var items = document.querySelectorAll(".int-item");
+  var data = [];
+  for (var i = 0; i < items.length; i++) {
+    var r = items[i];
+    var o = r.querySelector(".int-org").value.trim();
+    if (!o) { intShow("Organization is required for all rows.", "danger"); return; }
+    data.push({
+      Organization: o,
+      Role:         r.querySelector(".int-role").value.trim(),
+      Start_Date:   r.querySelector(".int-start").value.trim(),
+      End_Date:     r.querySelector(".int-end").value.trim(),
+      Location:     r.querySelector(".int-loc").value.trim(),
+      Description:  r.querySelector(".int-desc").value.trim()
+    });
+  }
+  google.script.run
+    .withSuccessHandler(function() { intShow("Internships saved successfully!", "success"); })
+    .withFailureHandler(function(e) { intShow(e.message || e, "danger"); })
+    .saveInternshipList(data);
 }
 
-function show(msg,type){
- alerts.innerHTML=`<div class="alert alert-${type} alert-dismissible fade show">${msg}<button class="btn-close" data-bs-dismiss="alert"></button></div>`;
+function intShow(msg, type) {
+  document.getElementById("intMsg").innerHTML =
+    '<div class="alert alert-' + type + ' alert-dismissible fade show">' + msg +
+    '<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>';
 }
+function esc(s) { return String(s).replace(/"/g,"&quot;").replace(/</g,"&lt;"); }
 </script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
