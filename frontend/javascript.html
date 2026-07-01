@@ -38,6 +38,7 @@ loadModule(moduleName){
     const content=document.getElementById("content");
     if(content){
       content.innerHTML=html;
+      PIBM.runScripts(content);
     }
 
     PIBM.hideLoader();
@@ -56,24 +57,37 @@ loadModule(moduleName){
 
 },
 
+/**
+ * Scripts inserted via element.innerHTML are parsed into the DOM
+ * but browsers deliberately do NOT execute them. Each module's
+ * inline <script> block (loadDashboard, initPersonal, etc.) would
+ * silently never run without this - we re-create every script tag
+ * so the browser treats it as freshly inserted and executes it.
+ */
+runScripts(container){
+
+ const oldScripts=container.querySelectorAll("script");
+
+ oldScripts.forEach(function(oldScript){
+
+    const newScript=document.createElement("script");
+
+    Array.from(oldScript.attributes).forEach(function(attr){
+      newScript.setAttribute(attr.name,attr.value);
+    });
+
+    newScript.textContent=oldScript.textContent;
+
+    oldScript.parentNode.replaceChild(newScript,oldScript);
+
+ });
+
+},
+
 afterModuleLoad(module){
-
- switch(module){
-
-   case "dashboard":
-      if(typeof loadDashboard==="function"){
-         loadDashboard();
-      }
-      break;
-
-   case "personal":
-      if(typeof initPersonal==="function"){
-         initPersonal();
-      }
-      break;
-
- }
-
+ // Modules self-initialize via direct function calls at the bottom
+ // of each module's <script> block (replacing DOMContentLoaded).
+ // No external dispatch needed here.
 },
 
 call(serverFunction,args,callback){

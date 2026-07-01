@@ -13,10 +13,10 @@
             <span id="studentName">Student</span>
           </h3>
 
-          <div class="text-muted mb-3">
-            <span id="studentId"></span> |
-            <span id="studentProgram"></span> |
-            <span id="studentBatch"></span>
+          <div class="text-muted mb-3" id="studentMeta" style="display:none">
+            <span id="studentId"></span>
+            <span id="studentProgramSep"> | </span><span id="studentProgram"></span>
+            <span id="studentBatchSep"> | </span><span id="studentBatch"></span>
           </div>
 
           <label class="mb-2 fw-semibold">
@@ -214,6 +214,9 @@ function loadDashboard(){
             document.getElementById("studentId").textContent=data.student.studentId||"";
             document.getElementById("studentProgram").textContent=data.student.program||"";
             document.getElementById("studentBatch").textContent=data.student.batch||"";
+            document.getElementById("studentMeta").style.display="block";
+            document.getElementById("studentProgramSep").style.display=data.student.program?"":"none";
+            document.getElementById("studentBatchSep").style.display=data.student.batch?"":"none";
 
             const pct=data.completion.overall||0;
 
